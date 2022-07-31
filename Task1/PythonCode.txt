@@ -1,0 +1,74 @@
+
+import pandas as pd
+
+log=pd.read_csv("C:\\Users\\30694\\Videos\\2014-09-03.log", sep='\t', engine='python', header=None,  names=['colA', 'colB','colC','colD','colE','colF','colG','colH','colK'])
+#df2=log[9].value_counts()
+
+substr = '404'
+print (log.colK.str.count(substr).sum())
+
+
+#
+#q1=log[log[9].slotr.contains('status=404')]
+#
+#x=log.apply(lambda row: row.astype(str).str.contains('status=404').any(), axis=1)
+#
+#print(x[0].value_counts(ascending=True)
+#)
+import re
+count=0
+lst=[]
+lst2=[]
+lst3=[]
+lst4=[]
+lst5=[]
+fl=open('C:\\Users\\30694\\Videos\\2014-09-03.log','r',encoding = 'cp850')
+fillines=fl.readlines()
+fl.close()
+for i in fillines:
+  match = re.search('service=(\d+)', i)
+  match2 = re.search('FROM (\S+)', i)
+  match3 = re.search('INNER JOIN (\S+)', i)
+  match4 = re.search('status=(\d+)', i)
+  if match:
+      lst2.append(match.group(1))
+
+  if match2:
+     lst3.append(match2.group(1))  
+     
+  if match3:
+     lst4.append(match3.group(1))  
+  if match4:
+     lst5.append(match4.group(1))       
+  if re.search(r'status=404',i):
+    count+=1
+    path=re.search(r'path="[/\w+/]+"',fillines[0]).group(0)#get path using regex
+    path=path.split("path=")[1] #since we only want the url
+    path=path.replace('"','') #we dont want the quotes in log
+    lst.append(path)#since we only want the url
+    
+    
+#def Average(lst1): 
+#    return sum(lst1) / len(lst1) 
+#average = Average(lst2)     
+#    https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+    
+from statistics import mean   
+    
+    
+ave = mean(int(n) if n else 0 for n in lst2)  
+    
+    
+lst34=lst3+lst4    
+    
+    
+from collections import Counter 
+  
+def most_frequent(List): 
+    occurence_count = Counter(List) 
+    return occurence_count.most_common(1)[0][0]     
+    
+print(most_frequent(lst34))    
+    
+print (Counter(lst5))    
+    

@@ -1,0 +1,20 @@
+We have received a log file for different post and get requests to workable.com domai. Each and every row contains different text attributes which can help us to answer different questions. We can parse this log file and select the attributes we want to collect and count from each row and store them in a dataframe so that we can perform our operations.
+
+Q1
+For the first question we need to parse all the rows contained and count the number o f rows that contained the keyword '404'. The result we got was  91019.
+
+Q2
+For the second request which is about the average service time we need to collect the service time for each post/get request contained in the log and store it in a dataframe. Then by adding all the values and diving by the total number of the dataframe rows we can conclude that the average time is 43ms.
+
+Q3
+
+In a similar way we can collect per log row all the words that appear after the sql commands from and inner join. By computing the frequency per table word we can see that the most popular table is delayed_jobs
+
+Q4
+From the networks theory we know that all the redirections start with code 3* like
+so we can see 2 types of redirections taking place '302': 58,  '304': 5,
+(https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections)
+Q5
+(source https://success.trendmicro.com/solution/TP000086250-What-are-Syslog-Facilities-and-Levels)
+
+We can find a correlation the text heroku/router and wep.appX with the Local 3 and Local 7 variable which corresponds to the heroku/router description as a system daemon and the web.appX as a network news subsystem facility.

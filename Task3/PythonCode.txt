@@ -1,0 +1,110 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Dec 17 20:07:20 2020
+
+@author: 30694
+"""
+
+
+#   Import Libraries
+import json
+import config # to hide TMDB API keys
+import requests # to make TMDB API calls
+import locale # to format currency as USD
+locale.setlocale( locale.LC_ALL, '' )
+import pyodbc 
+import pandas as pd
+import numpy as np
+
+#main url construction based on api key and moviedb url
+api_key = 'bbb0e77b94b09193e6f32d5fac7a3b9c'
+url='https://api.themoviedb.org/3/discover/movie?api_key='
+response = requests.get(url +  api_key + '&language=en-US&sort_by=popularity.desc&certification_country=GRC&include_adult=false&include_video=false&page=1')
+
+
+#variable to store all the movies that are trending on Greece
+allMovies = response.json() # store parsed json response
+
+# filter the parsed results from json
+Greek_films = allMovies['results']
+
+#function to filter the job category for each movie
+def condition(dic):
+    ''' Define your own condition here'''
+    return dic['job'] == 'Director'
+
+
+# create dataframe with film and rest columns
+df = pd.DataFrame(Greek_films)
+lst=[]
+result_list=[]
+names=[]
+ids=[]
+currentmovie=[]
+# for each of the highest revenue films make an api call for that specific movie to return the budget and revenue
+for film in Greek_films:
+
+# 
+    film_ = requests.get('https://api.themoviedb.org/3/movie/'+ str(film['id']) +'/credits?api_key='+ api_key+'&language=en-US')
+    film_ = film_.json()
+    keyValList = ['Director']
+    # Get Crew Json Dict
+    exampleSet=film_.get("crew")
+    # If it contains Job=Director store it to the variable expectedResult
+    expectedResult = [d for d in exampleSet if d['job'] in keyValList]
+    for d in expectedResult:
+#         print(d)
+        for k,v in d.items():
+     #Loop on Directors dataset and get their name and id along with the movie title
+            if k =='name':
+              names.append(v)
+            if k=="id":
+              ids.append(v)
+              currentmovie.append(film['title'])
+                
+
+    result_list.append(expectedResult)
+# Use the movie title as the column to join the directors and movies dataframe
+DirectorsDF=pd.DataFrame(np.column_stack([currentmovie,names,ids]), 
+                               columns=['title', 'Director', 'DirectorID'])
+merged=(pd.merge(df, DirectorsDF, on='title'))
+
+col_one_list = merged['DirectorID'].tolist()
+
+merged2 = merged['DirectorID']
+merged2=pd.DataFrame(merged2)
+imdb_ids=[]
+for film in col_one_list:
+   
+    persondata = requests.get('https://api.themoviedb.org/3/person/'+ str(film) +'?api_key='+ api_key+'&language=en-US')
+    persondata2 = persondata.json()
+
+    exampleSet2=persondata2.get("imdb_id")
+    imdb_ids.append(exampleSet2)
+
+merged['imbdLink'] =imdb_ids
+
+
+
+# Create the Connection with SQL Server
+conn = pyodbc.connect('Driver={SQL Server};'
+                      'Server=LAPTOP-4QCKGR44\MSSQLSERVER2012;'
+                      'Database=Movies;'
+                      'Trusted_Connection=yes;')
+
+cursor = conn.cursor()
+# Pass the Python DataFrame to the SQL Table
+for index, row in merged.iterrows():
+    cursor.execute(''' IF NOT EXISTS(SELECT * FROM dbo.MoviesTable WHERE Title = ? and ListDirectors=?)
+       begin            
+    INSERT  INTO dbo.MoviesTable (Title,Description,OriginalTitle,ListDirectors,IMDBLink) values(?,?,?,?,?)
+       end            
+    
+    ''',row.title,row.Director,row.title, row.overview, row.original_title,row.Director,row.imbdLink)
+conn.commit()
+cursor.close()
+
+
+
+#https://api.themoviedb.org/3/movie/590706?api_key=bbb0e77b94b09193e6f32d5fac7a3b9c&language=en-US
+#https://api.themoviedb.org/3/discover/movie?api_key=bbb0e77b94b09193e6f32d5fac7a3b9c&language=en-US&sort_by=popularity.desc&certification_country=GRC&include_adult=false&include_video=false&page=1&append_to_response=imdb_id,name

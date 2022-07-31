@@ -1,0 +1,12 @@
+Q1
+customer ids = 526,148,38,138 with count =24
+Q2
+He would not be able to rent because rental date period was from 28/7/2005 until 4/8/2005
+Q3
+check photo
+Q4
+sports
+Q5
+Talented Homicide, Gleaming Jawbreaker
+Q6
+rfm, customer segmentation, find popular products and best/worst customer in order to apply special offers, vips cards etc

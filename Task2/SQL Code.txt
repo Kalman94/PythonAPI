@@ -1,0 +1,47 @@
+Q1
+select c.customer_id, count(r.rental_id) from customer c
+inner join rental r on r.customer_id=c.customer_id
+inner join staff p on p.staff_id=r.staff_id
+where p.store_id=2
+group by c.customer_id
+order by count desc
+Q2
+select i.film_id,r.rental_date,r.return_date from inventory i
+inner join rental r on r.inventory_id = i.inventory_id
+inner join film f on f.film_id=i.film_id
+where i.store_id=2 and f.title='Image Princess'
+Q3
+SELECT 
+    to_char(rental_date, 'YYYY-MM') AS monthofyear, 
+    COUNT(DISTINCT customer_id) AS activecounter 
+FROM rental
+GROUP BY (to_char(rental_date, 'YYYY-MM'))
+ORDER BY (to_char(rental_date, 'YYYY-MM')) DESC
+
+Q4
+SELECT c.name, COUNT(*) AS RentalCount
+FROM film_category fc JOIN
+     category c
+     ON c.category_id = fc.category_id JOIN
+     inventory i
+     ON i.film_id = fc.film_id JOIN
+     rental r
+     ON r.inventory_id = i.inventory_id
+GROUP BY c.name
+ORDER BY RentalCount DESC
+LIMIT 1;
+
+
+Q5
+SELECT  f.title, COUNT(*) AS RentalCount
+  FROM  film f
+    INNER JOIN film_category fc ON fc.film_id = f.film_id
+    INNER JOIN category c ON c.category_id = fc.category_id
+    INNER JOIN inventory i ON i.film_id = f.film_id
+    INNER JOIN rental r ON r.inventory_id = i.inventory_id
+  WHERE (c.name = 'Sports')
+  GROUP BY f.title
+  ORDER BY 2 DESC;
+
+Q6
+find best customers,worst customers //  rfm segmentation
